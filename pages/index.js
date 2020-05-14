@@ -1,13 +1,21 @@
 import React from "react";
 import Head from "next/head";
-
-import { useQuery } from "@apollo/react-hooks";
-import PROJECTS_QUERY from "../queries";
+import { useSelector, useDispatch } from "react-redux";
+import Button from '@material-ui/core/Button'
+import {
+  decrement,
+  increment,
+} from "../redux/actions/testActions";
+import PRODUCTS_QUERY from "../queries";
 import AppLayout from "../components/Layout/AppLayout";
 
-const Home = ({ data }) => {
+const Home = ({ data}) => {
+  const dispatch = useDispatch();
+  const testing = useSelector(state => state.testing.value)
   const testRender = () => {
     if (data.products) {
+      // limit how many get rendered
+      data.products = data.products.slice(0, 5)
       return (
         <div>
           {data.products.map(({ id, name, image, category }) => (
@@ -22,8 +30,6 @@ const Home = ({ data }) => {
   };
   return (
     <div className="home">
-      <AppLayout>Landing</AppLayout>
-      {testRender()}
       <Head>
         <title>Home</title>
         <link rel="icon" href="/favicon.ico" />
@@ -32,6 +38,25 @@ const Home = ({ data }) => {
           href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
         />
       </Head>
+      <AppLayout>
+        <h1 align="center">Landing Page</h1>
+        <Button
+          onClick={() => dispatch(increment())}
+          variant="contained"
+          color="primary"
+        >
+          Increment
+        </Button>
+        <Button
+          onClick={() => dispatch(decrement())}
+          variant="contained"
+          color="primary"
+        >
+          Decrement
+        </Button>
+        <h1>{testing}</h1>
+        {testRender()}
+      </AppLayout>
     </div>
   );
 };
@@ -39,7 +64,7 @@ const Home = ({ data }) => {
 Home.getInitialProps = async (ctx) => {
   const apolloClient = ctx.apolloClient;
   const { data, error, loading } = await apolloClient.query({
-    query: PROJECTS_QUERY,
+    query: PRODUCTS_QUERY,
   });
   if (error) return <div>error</div>;
   return { data, error, loading };

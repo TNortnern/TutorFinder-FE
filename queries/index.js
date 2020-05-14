@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-const PROJECTS_QUERY = gql`
+const PRODUCTS_QUERY = gql`
   query products {
     products {
       id
@@ -12,4 +12,4 @@ const PROJECTS_QUERY = gql`
   }
 `;
 
-export default PROJECTS_QUERY;
+export default PRODUCTS_QUERY;

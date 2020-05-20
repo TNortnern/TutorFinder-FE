@@ -27,9 +27,6 @@ const test = ({ data }) => {
   useEffect(() => {
     // intialize selects
     if (getRoles.data) setRole(getRoles.data.roles[0].id);
-
-    //   if (getCategories.data)
-    //     setRole(getCategories.data.publicCategories[0].id);
   }, [getRoles, getCategories]);
   return (
     <AppLayout>
@@ -40,7 +37,7 @@ const test = ({ data }) => {
         ) : (
           ""
         )}
-        <Grid container direction="row" justify="center">
+        <Grid container direction="row" justify="center" sp>
           <Grid item xs={gridValues.xs} sm={gridValues.sm}>
             <TextField
               required
@@ -94,22 +91,24 @@ const test = ({ data }) => {
             )}
           </Grid>
           <Grid item xs={gridValues.xs} sm={gridValues.sm}>
-            <TextField
-              required
-              label="Categories"
-              onChange={({ target }) => setCategories(target.value)}
-            />
-            {getCategories.data ? (
-                <>
-                {JSON.stringify(getCategories.data.publicCategories)}
-              <Autocomplete
-                options={getCategories.data.publicCategories}
-                getOptionLabel={(option) => option.title}
-                style={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField value={categories} onChange={(e) => setCategories(e.target.value)} label="Categories" variant="outlined" />
-                )}
-              />
+            {getCategories.data &&
+            getCategories.data.publicCategories.length ? (
+              <>
+                <Autocomplete
+                  multiple
+                  autoHighlight
+                  options={getCategories.data.publicCategories}
+                  getOptionLabel={(option) => option.name}
+                  noOptionsText="No Categories"
+                  onChange={(e, items) => {
+                    // get only category ids
+                    setCategories(items.map(({ id }) => id));
+                  }}
+                  style={{ width: "200px" }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Categories" />
+                  )}
+                />
               </>
             ) : (
               "loading"
@@ -127,27 +126,56 @@ const test = ({ data }) => {
           style={{ margin: "20px 0" }}
           variant="contained"
           color="primary"
-          onClick={() => {
-            createUser({
+          onClick={async () => {
+            console.log("cats", categories);
+            await createUser({
               variables: {
-                name: "cheese",
-                email: "auth@auth.saufddfdtfh",
-                password: "12345",
-                location: "testLocation",
-                avatar: "prettyPicture",
-                role: "5ebf44978284563cf064ad88",
-                categories: [
-                  "5ec28e24df65822b544343e0",
-                  "5ec28f49a8c4cf47cc645685",
-                ],
-                age: 15,
+                name,
+                email,
+                password,
+                location,
+                avatar,
+                role,
+                categories,
+                age,
               },
-            });
+            })
+              .then((res) => {
+                // maybe have a user array in redux that you push this new user to for real time updates
+                console.log(res.createUser);
+              })
+              .catch((err) => console.log(err));
           }}
         >
           Add new user
         </Button>
       </form>
+      <ul>
+        {data.users.map((user) => (
+          <>
+            <li>
+              {user.name} - {user.role.name}
+            </li>
+            {user.profile.categories.length ? (
+              <h5>
+                Experienced with:{" "}
+                {user.profile.categories.map(({ name }, index) => (
+                  <span>
+                    {name}
+                    {index !== user.profile.categories.length - 1 ? (
+                      <span>, </span>
+                    ) : (
+                      ""
+                    )}{" "}
+                  </span>
+                ))}
+              </h5>
+            ) : (
+              <h5>No experience listed.</h5>
+            )}
+          </>
+        ))}
+      </ul>
     </AppLayout>
   );
 };

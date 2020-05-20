@@ -7,6 +7,9 @@ export const USERS_QUERY = gql`
       name
       profile {
         avatar
+        categories {
+          name
+        }
       }
       role {
         name

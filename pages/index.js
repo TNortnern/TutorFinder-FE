@@ -6,7 +6,7 @@ import {
   decrement,
   increment,
 } from "../redux/actions/testActions";
-import PRODUCTS_QUERY from "../queries";
+// import PRODUCTS_QUERY from "../queries";
 import AppLayout from "../components/Layout/AppLayout";
 
 const Home = ({ data}) => {
@@ -55,19 +55,19 @@ const Home = ({ data}) => {
           Decrement
         </Button>
         <h1>{testing}</h1>
-        {testRender()}
+        {/* {testRender()} */}
       </AppLayout>
     </div>
   );
 };
 
-Home.getInitialProps = async (ctx) => {
-  const apolloClient = ctx.apolloClient;
-  const { data, error, loading } = await apolloClient.query({
-    query: PRODUCTS_QUERY,
-  });
-  if (error) return <div>error</div>;
-  return { data, error, loading };
-};
+// Home.getInitialProps = async (ctx) => {
+//   const apolloClient = ctx.apolloClient;
+//   const { data, error, loading } = await apolloClient.query({
+//     query: PRODUCTS_QUERY,
+//   });
+//   if (error) return <div>error</div>;
+//   return { data, error, loading };
+// };
 
 export default Home;

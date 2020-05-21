@@ -13,6 +13,7 @@ import Box from "@material-ui/core/Box";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
+import Dialog from "@material-ui/core/Dialog";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Visibility from "@material-ui/icons/Visibility";
@@ -20,6 +21,7 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { LOGIN } from "../../../graphql/queries/users";
 import withApollo from "../../../util/with-apollo";
 import { login, clearErrors } from "../../../redux/actions/auth";
+import { loginHandler } from "./functions";
 
 function Copyright() {
   return (
@@ -54,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignIn = () => {
+const SignIn = ({ open, handleClose }) => {
   const classes = useStyles();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,116 +78,110 @@ const SignIn = () => {
   const loginUser = async (e) => {
     dispatch(clearErrors());
     e.preventDefault();
-    // call the login query
-    await refetch()
-      .then(({ data }) => {
-        dispatch(login({ success: data.login }));
-        alert('login success')
-      })
-      .catch((err) => {
-        if (err.graphQLErrors) {
-          dispatch(
-            login({
-              errors: err.graphQLErrors.map((item) => item.message),
-            })
-          );
-        }
-        dispatch(
-          login({
-            errors: err.message,
-          })
-        );
-      });
+    // call the login query from functions file, returns if successful, close the dialog
+    if (await loginHandler(login, refetch, dispatch)) handleClose();
   };
   return (
-    <Container component="main" maxWidth="xs">
-      {auth.errors.items && auth.errors.id === "login" ? (
-        <>
-          {auth.errors.items.map((err) => (
-            <p style={{ color: "red", textAlign: 'center' }}>{err}</p>
-          ))}
-        </>
-      ) : (
-        ""
-      )}
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}></Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <form onSubmit={e => loginUser(e)} className={classes.form} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            // error={error}
-            value={email}
-            onChange={({ target }) => setEmail(target.value)}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            // error={error}
-            fullWidth
-            name="password"
-            label="Password"
-            type={hidePassword ? "text" : "password"}
-            id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={hideOrShowPassword}
-                  >
-                    {hidePassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="form-dialog-title"
+    >
+      <Container component="main" maxWidth="xs">
+        {auth.errors.items && auth.errors.id === "login" ? (
+          <>
+            {auth.errors.items.map((err) => (
+              <p key={err} style={{ color: "red", textAlign: "center" }}>
+                {err}
+              </p>
+            ))}
+          </>
+        ) : (
+          ""
+        )}
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}></Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <form
+            onSubmit={(e) => loginUser(e)}
+            className={classes.form}
+            noValidate
           >
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              // error={error}
+              value={email}
+              onChange={({ target }) => setEmail(target.value)}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              // error={error}
+              fullWidth
+              name="password"
+              label="Password"
+              type={hidePassword ? "text" : "password"}
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={({ target }) => setPassword(target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={hideOrShowPassword}
+                    >
+                      {hidePassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Link href="#" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-      <Box mt={8}>
-        <Copyright />
-      </Box>
-    </Container>
+          </form>
+        </div>
+        <Box mt={8}>
+          <Copyright />
+        </Box>
+      </Container>
+    </Dialog>
   );
 };
 

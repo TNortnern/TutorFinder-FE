@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SignIn from './signIn/SignIn.js';
 import MenuIcon from '@material-ui/icons/Menu';
 import {
   Button,
-  Dialog,
   AppBar,
   Toolbar,
   IconButton,
@@ -11,6 +10,8 @@ import {
   Typography,
   Link,
 } from '@material-ui/core';
+import { useSelector, useDispatch } from 'react-redux'
+import { logout } from '../../redux/actions/auth/index.js';
 
 const Nav = () => {
   const styles = {
@@ -26,7 +27,9 @@ const Nav = () => {
     },
   };
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const user = useSelector(state => state.auth.user);
+  const dispatch = useDispatch();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -37,41 +40,43 @@ const Nav = () => {
   };
 
   return (
-    <AppBar position='static'>
+    <AppBar position="static">
       <Toolbar style={styles.navbar}>
         <IconButton
-          edge='start'
-          color='inherit'
-          aria-label='menu'
+          edge="start"
+          color="inherit"
+          aria-label="menu"
           style={styles.navbar__menuButton}
         >
           <MenuIcon />
         </IconButton>
-        <Link href='#'>
-          <Typography style={styles.navbar__links} variant='h6'>
+        <Link href="#">
+          <Typography style={styles.navbar__links} variant="h6">
             what we do
           </Typography>
         </Link>
-        <Link href='#'>
-          <Typography style={styles.navbar__links} variant='h6'>
+        <Link href="#">
+          <Typography style={styles.navbar__links} variant="h6">
             what we do
           </Typography>
         </Link>
-        <Link href='#'>
-          <Typography style={styles.navbar__links} variant='h6'>
+        <Link href="#">
+          <Typography style={styles.navbar__links} variant="h6">
             what we do
           </Typography>
         </Link>
-        <Button variant='outlined' color='inherit' onClick={handleClickOpen}>
-          Login
-        </Button>
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby='form-dialog-title'
-        >
-          <SignIn />
-        </Dialog>
+        {!user ? (
+          <Button variant="outlined" color="inherit" onClick={handleClickOpen}>
+            Login
+          </Button>
+        ) : (
+          <Button onClick={() => {
+            dispatch(logout());
+          }} variant="outlined" color="inherit">
+            Logout
+          </Button>
+        )}
+          <SignIn open={open} handleClose={handleClose} />
       </Toolbar>
     </AppBar>
   );

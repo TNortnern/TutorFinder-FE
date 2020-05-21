@@ -39,6 +39,13 @@ export const login = (result) => {
   };
 };
 
+export const logout = () => {
+  return {
+    type: "LOGOUT_SUCCESS",
+    payload: []
+  }
+}
+
 export const clearErrors = () => {
   return {
     type: CLEAR_ERRORS,

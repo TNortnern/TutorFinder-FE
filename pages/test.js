@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "@material-ui/core/Button";
 import { CREATE_USER } from "../graphql/mutations/users";
 import AppLayout from "../components/Layout/AppLayout";
@@ -10,6 +11,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { ROLES_QUERY } from "../graphql/queries/roles";
 import { CATEGORIES_QUERY } from "../graphql/queries/categories";
 import { USERS_QUERY } from "../graphql/queries/users";
+import { register } from "../redux/actions/auth/index";
 
 const test = ({ data }) => {
   const [createUser, result] = useMutation(CREATE_USER);
@@ -24,12 +26,15 @@ const test = ({ data }) => {
   const [categories, setCategories] = useState("");
   const [age, setAge] = useState("");
   const gridValues = { xs: 12, sm: 3 };
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
   useEffect(() => {
     // intialize selects
     if (getRoles.data) setRole(getRoles.data.roles[0].id);
   }, [getRoles, getCategories]);
   return (
     <AppLayout>
+      {JSON.stringify(auth)}
       <form noValidate>
         {result && result.loading ? <p>Loading...</p> : ""}
         {result && result.error ? (
@@ -127,7 +132,6 @@ const test = ({ data }) => {
           variant="contained"
           color="primary"
           onClick={async () => {
-            console.log("cats", categories);
             await createUser({
               variables: {
                 name,
@@ -140,11 +144,25 @@ const test = ({ data }) => {
                 age,
               },
             })
-              .then((res) => {
+              .then(({data}) => {
                 // maybe have a user array in redux that you push this new user to for real time updates
-                console.log(res.createUser);
+                const { createUser } = data
+                dispatch(
+                  register({
+                    success: createUser,
+                  })
+                );
               })
-              .catch((err) => console.log(err));
+              .catch((err) => {
+                console.log(err);
+                if (err.graphQLErrors) {
+                  dispatch(
+                    register({
+                      errors: err.graphQLErrors.map((item) => item.message),
+                    })
+                  );
+                }
+              });
           }}
         >
           Add new user
@@ -153,7 +171,7 @@ const test = ({ data }) => {
       <ul>
         {data.users.map((user) => (
           <>
-            <li>
+            <li key={user.id}>
               {user.name} - {user.role.name}
             </li>
             {user.profile.categories.length ? (

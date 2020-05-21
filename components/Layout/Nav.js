@@ -1,5 +1,5 @@
 import React from 'react';
-import SignIn from './SignIn/SignIn.js';
+import SignIn from './signIn/SignIn.js';
 import MenuIcon from '@material-ui/icons/Menu';
 import {
   Button,

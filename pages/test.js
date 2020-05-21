@@ -34,7 +34,7 @@ const test = ({ data }) => {
   }, [getRoles, getCategories]);
   return (
     <AppLayout>
-      {auth.errors.items ? (
+      {auth.errors.items && auth.errors.id === "register" ? (
         <ul>
           {auth.errors.items.map((err) => (
             <li>{err}</li>

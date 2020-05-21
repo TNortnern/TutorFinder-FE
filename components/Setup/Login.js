@@ -9,8 +9,8 @@ import { LOGIN } from "../../graphql/queries/users";
 import withApollo from "../../util/with-apollo";
 import { login, clearErrors } from "../../redux/actions/auth";
 const Login = () => {
-  const [email, setEmail] = useState("test");
-  const [password, setPassword] = useState("testa");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
   const { loading, data, error, refetch } = useQuery(LOGIN, {

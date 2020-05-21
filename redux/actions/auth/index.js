@@ -24,10 +24,10 @@ export const register = (result) => {
 };
 export const login = (result) => {
   // temporary error display
-  if (result.errors.includes("GraphQL error:")) {
-    result.errors = result.errors.split(":")[1]
-  }
   if (result.errors) {
+    if (result.errors.includes("GraphQL error:")) {
+      result.errors = result.errors.split(":")[1]
+    }
     return {
       type: AUTH_ERROR,
       payload: { id: "login", items: [result.errors] },

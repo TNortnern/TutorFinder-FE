@@ -6,3 +6,4 @@ export const LOGIN_FAIL = "LOGIN_FAIL";
 export const REGISTER_FAIL = "REGISTER_FAIL";
 export const LOGOUT_FAIL = "LOGOUT_FAIL";
 export const GET_USER = "GET_USER";
+export const CLEAR_ERRORS = "CLEAR_ERRORS"

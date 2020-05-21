@@ -11,7 +11,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { ROLES_QUERY } from "../graphql/queries/roles";
 import { CATEGORIES_QUERY } from "../graphql/queries/categories";
 import { USERS_QUERY } from "../graphql/queries/users";
-import { register } from "../redux/actions/auth/index";
+import { register, clearErrors } from "../redux/actions/auth/index";
 
 const test = ({ data }) => {
   const [createUser, result] = useMutation(CREATE_USER);
@@ -34,7 +34,15 @@ const test = ({ data }) => {
   }, [getRoles, getCategories]);
   return (
     <AppLayout>
-      {JSON.stringify(auth)}
+      {auth.errors.items ? (
+        <ul>
+          {auth.errors.items.map((err) => (
+            <li>{err}</li>
+          ))}
+        </ul>
+      ) : (
+        ""
+      )}
       <form noValidate>
         {result && result.loading ? <p>Loading...</p> : ""}
         {result && result.error ? (
@@ -132,6 +140,8 @@ const test = ({ data }) => {
           variant="contained"
           color="primary"
           onClick={async () => {
+            dispatch(clearErrors());
+
             await createUser({
               variables: {
                 name,
@@ -144,9 +154,9 @@ const test = ({ data }) => {
                 age,
               },
             })
-              .then(({data}) => {
+              .then(({ data }) => {
                 // maybe have a user array in redux that you push this new user to for real time updates
-                const { createUser } = data
+                const { createUser } = data;
                 dispatch(
                   register({
                     success: createUser,

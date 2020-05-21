@@ -7,13 +7,14 @@ import {
   LOGIN_FAIL,
   LOGOUT_FAIL,
   REGISTER_FAIL,
+  CLEAR_ERRORS
 } from "./constants";
 
 export const register = (result) => {
   if (result.errors) {
     return {
       type: AUTH_ERROR,
-      payload: { id: "register", message: result.errors },
+      payload: { id: "register", items: result.errors },
     };
   }
   return {
@@ -22,11 +23,14 @@ export const register = (result) => {
   };
 };
 export const login = (result) => {
-  console.log(result)
+  // temporary error display
+  if (result.errors.includes("GraphQL error:")) {
+    result.errors = result.errors.split(":")[1]
+  }
   if (result.errors) {
     return {
       type: AUTH_ERROR,
-      payload: { id: "login", message: result.errors },
+      payload: { id: "login", items: [result.errors] },
     };
   }
   return {
@@ -34,3 +38,10 @@ export const login = (result) => {
     payload: result.success,
   };
 };
+
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERRORS,
+    payload: []
+  }
+}

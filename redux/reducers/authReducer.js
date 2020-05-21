@@ -7,6 +7,7 @@ import {
   LOGIN_FAIL,
   LOGOUT_FAIL,
   REGISTER_FAIL,
+  CLEAR_ERRORS,
 } from "../actions/auth/constants";
 const initialState = {
   user: null,
@@ -43,14 +44,14 @@ const authReducer = (state = initialState, { type, payload }) => {
         ...state,
         user: null,
         loading: false,
+        token: null,
+        errors: payload,
       };
-    case AUTH_ERROR: {
-      console.log(payload);
+    case CLEAR_ERRORS:
       return {
         ...state,
-        errors: [...errors, payload],
+        errors: [],
       };
-    }
     default:
       return state;
   }

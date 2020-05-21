@@ -7,12 +7,12 @@ import { useQuery } from "@apollo/react-hooks";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN } from "../../graphql/queries/users";
 import withApollo from "../../util/with-apollo";
-import { login } from "../../redux/actions/auth";
+import { login, clearErrors } from "../../redux/actions/auth";
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("test");
+  const [password, setPassword] = useState("testa");
   const dispatch = useDispatch();
-  const auth = useSelector(state => state.auth)
+  const auth = useSelector((state) => state.auth);
   const { loading, data, error, refetch } = useQuery(LOGIN, {
     skip: LOGIN,
     variables: {
@@ -22,7 +22,9 @@ const Login = () => {
   });
 
   const loginUser = async (e) => {
+    dispatch(clearErrors());
     e.preventDefault();
+    // call the login query
     await refetch()
       .then(({ data }) => {
         dispatch(login({ success: data.login }));
@@ -35,11 +37,11 @@ const Login = () => {
             })
           );
         }
-          dispatch(
-            login({
-              errors: err.message,
-            })
-          );
+        dispatch(
+          login({
+            errors: err.message,
+          })
+        );
       });
   };
   return (
@@ -54,13 +56,22 @@ const Login = () => {
         style={{ minHeight: "100vh" }}
       >
         <Grid xs="auto" item>
-          {JSON.stringify(auth)}
+          {auth.errors.items && auth.errors.id === "login" ? (
+            <>
+              {auth.errors.items.map((err) => (
+                <p style={{ color: "red" }}>{err}</p>
+              ))}
+            </>
+          ) : (
+            ""
+          )}
 
           <form onSubmit={(e) => loginUser(e)}>
             <div>
               <TextField
                 required
                 label="E-mail"
+                value={email}
                 onChange={({ target }) => setEmail(target.value)}
                 style={{ width: "250px" }}
               />
@@ -69,11 +80,12 @@ const Login = () => {
               <TextField
                 required
                 label="Password"
+                value={password}
                 onChange={({ target }) => setPassword(target.value)}
                 style={{ width: "250px" }}
               />
             </div>
-            {loading ? <p>Logging in...</p> : ''}
+            {loading ? <p>Logging in...</p> : ""}
             <Button
               style={{ marginTop: "10px" }}
               color="primary"

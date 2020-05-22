@@ -1,13 +1,10 @@
 import React from "react";
 import Head from "next/head";
 import { useSelector, useDispatch } from "react-redux";
-import cookies from "next-cookies";
 import Button from "@material-ui/core/Button";
 import { decrement, increment } from "../redux/actions/testActions";
 // import PRODUCTS_QUERY from "../queries";
-import AppLayout from "../components/Layout/AppLayout";
-import { USER_BY_TOKEN } from "../graphql/queries/users";
-import { getUser } from "../redux/actions/auth";
+import AppLayout from "../components/layout/AppLayout";
 
 const Home = props => {
   const dispatch = useDispatch();

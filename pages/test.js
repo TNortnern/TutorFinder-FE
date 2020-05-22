@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "@apollo/react-hooks";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "@material-ui/core/Button";
 import { CREATE_USER } from "../graphql/mutations/users";
-import AppLayout from "../components/Layout/AppLayout";
+import AppLayout from "../components/layout/AppLayout";
 import withApollo from "../util/with-apollo";
 import { Grid, InputLabel, Select, MenuItem } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";

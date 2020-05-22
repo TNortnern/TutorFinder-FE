@@ -22,6 +22,8 @@ import { LOGIN } from "../../../graphql/queries/users";
 import withApollo from "../../../util/with-apollo";
 import { login, clearErrors } from "../../../redux/actions/auth";
 import { loginHandler } from "./functions";
+import { parseCookies, setCookie, destroyCookie } from "nookies";
+import UserContext from '../../UserContext'
 
 function Copyright() {
   return (
@@ -57,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignIn = ({ open, handleClose }) => {
+    const context = React.useContext(UserContext);
   const classes = useStyles();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,7 +82,7 @@ const SignIn = ({ open, handleClose }) => {
     dispatch(clearErrors());
     e.preventDefault();
     // call the login query from functions file, returns if successful, close the dialog
-    const token = await loginHandler(login, refetch, dispatch)
+    const token = await loginHandler(login, refetch, dispatch, context.signin)
     if (token) { 
       handleClose();
       document.cookie = `token=${token}; path=/`;

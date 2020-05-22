@@ -7,16 +7,17 @@
  * @return {boolean} Redux will react differently depending on boolean
  */
 
-export const loginHandler = async (login, refetch, dispatch) => {
+export const loginHandler = async (login, refetch, dispatch, appLogin) => {
   let success = false;
   // call the login query
   await refetch()
     .then(({ data }) => {
       success = data.login.token;
-      dispatch(login({ success: data.login }));
+      appLogin(data.login)
     })
     .catch((err) => {
       success = false;
+      // using redux action to dispatch gain error feedback
       if (err.graphQLErrors) {
         dispatch(
           login({

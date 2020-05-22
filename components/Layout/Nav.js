@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SignIn from "./signIn/SignIn"
+import SignIn from "./signIn/SignIn";
 import MenuIcon from "@material-ui/icons/Menu";
 import {
   Button,
@@ -8,16 +8,19 @@ import {
   IconButton,
   makeStyles,
   Typography,
-  Link,
   CircularProgress,
 } from "@material-ui/core";
-import { useSelector, useDispatch } from "react-redux";
-import { useQuery } from "@apollo/react-hooks";
-import { logout, getUser } from "../../redux/actions/auth/index.js";
+import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/actions/auth/index.js";
 import withApollo from "../../util/with-apollo.js";
-import { USER_BY_TOKEN } from "../../graphql/queries/users/index.js";
+import UserContext from "../UserContext";
 
 const Nav = (props) => {
+  // get user from global context
+  const context = React.useContext(UserContext);
+  console.log("context", context);
+  let { user } = context;
   const styles = {
     navbar: {
       justifyContent: "flex-end",
@@ -32,38 +35,7 @@ const Nav = (props) => {
   };
 
   const [open, setOpen] = useState(false);
-  const isAuthed = useSelector((state) => state.auth.isAuthenticated);
-  const [token, setToken] = useState("");
-  // so that the spinner shows while resolving auth
-  const [authResolved, setAuthResolved] = useState(false);
-  const { data, loading, error, refetch, networkStatus } = useQuery(
-    USER_BY_TOKEN,
-    {
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        token,
-      },
-      skip: USER_BY_TOKEN,
-    }
-  );
-  if (typeof window !== "undefined") {
-    const findUser = async () => {
-      if (localStorage && token) {
-        await refetch()
-          .then(({ data }) => {
-            if (data && data.userByToken) {
-              dispatch(getUser(data.userByToken));
-            }
-            setAuthResolved(true);
-          })
-          .catch((err) => {
-            setAuthResolved(true);
-            console.log(err);
-          });
-      }
-    };
-    findUser();
-  }
+
   const dispatch = useDispatch();
 
   const handleClickOpen = () => {
@@ -75,13 +47,14 @@ const Nav = (props) => {
   };
 
   const authRender = () => {
-    if (isAuthed && authResolved) {
+    if (user) {
       return (
         <Button
           onClick={() => {
             dispatch(logout());
+            // delete token
             document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
-            setToken("");
+            context.logout();
           }}
           variant="outlined"
           color="inherit"
@@ -89,7 +62,7 @@ const Nav = (props) => {
           Logout
         </Button>
       );
-    } else if (!isAuthed && authResolved) {
+    } else if (!user) {
       return (
         <Button variant="outlined" color="inherit" onClick={handleClickOpen}>
           Login
@@ -99,15 +72,9 @@ const Nav = (props) => {
       return <CircularProgress color="secondary" />;
     }
   };
-  React.useEffect(() => {
-    // handles checking if use is authenticated on refresh
-    // since apollo forcing component to render twice, giving a default value here only allows the query to run on the client-side where the token may be located
-    setToken(localStorage.getItem("token") ? localStorage.getItem("token") : 'not set');
-  });
 
   return (
     <AppBar position="static">
-      {JSON.stringify(loading)}
       <Toolbar style={styles.navbar}>
         <IconButton
           edge="start"
@@ -117,20 +84,25 @@ const Nav = (props) => {
         >
           <MenuIcon />
         </IconButton>
-        <Link>
-          <Typography style={styles.navbar__links} variant="h6">
-            what we do
-          </Typography>
+        <Link href="/">
+          <Button style={{ margin: "0 10px" }} size="large" color="inherit">
+            Home
+          </Button>
         </Link>
-        <Link href="#">
-          <Typography style={styles.navbar__links} variant="h6">
-            what we do
-          </Typography>
+        <Link href="/profile">
+          <Button style={{ margin: "0 10px" }} size="large" color="inherit">
+            Profile
+          </Button>
         </Link>
-        <Link href="#">
-          <Typography style={styles.navbar__links} variant="h6">
-            what we do
-          </Typography>
+        <Link href="/test">
+          <Button style={{ margin: "0 10px" }} size="large" color="inherit">
+            A Link
+          </Button>
+        </Link>
+        <Link href="/test">
+          <Button style={{ margin: "0 10px" }} size="large" color="inherit">
+            A Link
+          </Button>
         </Link>
         {authRender()}
         <SignIn open={open} handleClose={handleClose} />
@@ -139,4 +111,4 @@ const Nav = (props) => {
   );
 };
 
-export default withApollo({ ssrMode: false })(Nav);
+export default withApollo()(Nav);

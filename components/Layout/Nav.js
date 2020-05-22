@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SignIn from "./signIn/SignIn.js";
+import SignIn from "./signIn/SignIn"
 import MenuIcon from "@material-ui/icons/Menu";
 import {
   Button,

@@ -36,3 +36,19 @@ export const LOGIN = gql`
     }
   }
 `;
+
+export const USER_BY_TOKEN = gql`
+  query($token: String) {
+    userByToken(token: $token) {
+      id
+      name
+      email
+      role {
+        name
+      }
+      profile {
+        avatar
+      }
+    }
+  }
+`;

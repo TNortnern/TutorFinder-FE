@@ -1,33 +1,17 @@
 import React from "react";
 import Head from "next/head";
 import { useSelector, useDispatch } from "react-redux";
-import Button from '@material-ui/core/Button'
-import {
-  decrement,
-  increment,
-} from "../redux/actions/testActions";
+import cookies from "next-cookies";
+import Button from "@material-ui/core/Button";
+import { decrement, increment } from "../redux/actions/testActions";
 // import PRODUCTS_QUERY from "../queries";
 import AppLayout from "../components/Layout/AppLayout";
+import { USER_BY_TOKEN } from "../graphql/queries/users";
+import { getUser } from "../redux/actions/auth";
 
-const Home = ({ data}) => {
+const Home = props => {
   const dispatch = useDispatch();
-  const testing = useSelector(state => state.testing.value)
-  const testRender = () => {
-    if (data.products) {
-      // limit how many get rendered
-      data.products = data.products.slice(0, 5)
-      return (
-        <div>
-          {data.products.map(({ id, name, image, category }) => (
-            <div key={id}>
-              <h1>{name}</h1>
-              <span>{category.name}</span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-  };
+  const testing = useSelector((state) => state.testing.value);
   return (
     <div className="home">
       <Head>
@@ -61,13 +45,6 @@ const Home = ({ data}) => {
   );
 };
 
-// Home.getInitialProps = async (ctx) => {
-//   const apolloClient = ctx.apolloClient;
-//   const { data, error, loading } = await apolloClient.query({
-//     query: PRODUCTS_QUERY,
-//   });
-//   if (error) return <div>error</div>;
-//   return { data, error, loading };
-// };
+
 
 export default Home;

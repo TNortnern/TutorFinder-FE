@@ -1,12 +1,15 @@
-import { createStore } from "redux";
+import { createStore, applyMiddleware } from "redux";
+import { composeWithDevTools } from "redux-devtools-extension";
 import rootReducer from "./reducers/";
 import { createWrapper} from "next-redux-wrapper";
 
 
-const store = createStore(rootReducer);
+const composeEnhancers = composeWithDevTools({
+  // Specify here name, actionsBlacklist, actionsCreators and other options
+});
 
 const makeStore = context => {
-  const store = createStore(rootReducer);
+  const store = createStore(rootReducer, composeEnhancers());
   return store;
 };
 

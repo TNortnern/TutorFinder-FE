@@ -12,7 +12,7 @@ export const loginHandler = async (login, refetch, dispatch) => {
   // call the login query
   await refetch()
     .then(({ data }) => {
-      success = true;
+      success = data.login.token;
       dispatch(login({ success: data.login }));
     })
     .catch((err) => {

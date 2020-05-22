@@ -79,7 +79,11 @@ const SignIn = ({ open, handleClose }) => {
     dispatch(clearErrors());
     e.preventDefault();
     // call the login query from functions file, returns if successful, close the dialog
-    if (await loginHandler(login, refetch, dispatch)) handleClose();
+    const token = await loginHandler(login, refetch, dispatch)
+    if (token) { 
+      handleClose();
+      document.cookie = `token=${token}; path=/`;
+    }
   };
   return (
     <Dialog

@@ -46,6 +46,20 @@ export const logout = () => {
   }
 }
 
+export const getUser = user => {
+  console.log(user)
+  if (user) {
+    return {
+      type: GET_USER,
+      payload: user
+    }
+  }
+  return {
+    type: AUTH_ERROR,
+    payload: []
+  }
+}
+
 export const clearErrors = () => {
   return {
     type: CLEAR_ERRORS,

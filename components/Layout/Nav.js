@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import SignIn from './signIn/SignIn.js';
-import MenuIcon from '@material-ui/icons/Menu';
+import React, { useState } from "react";
+import SignIn from "./signIn/SignIn.js";
+import MenuIcon from "@material-ui/icons/Menu";
 import {
   Button,
   AppBar,
@@ -9,26 +9,62 @@ import {
   makeStyles,
   Typography,
   Link,
-} from '@material-ui/core';
-import { useSelector, useDispatch } from 'react-redux'
-import { logout } from '../../redux/actions/auth/index.js';
+  CircularProgress,
+} from "@material-ui/core";
+import { useSelector, useDispatch } from "react-redux";
+import { useQuery } from "@apollo/react-hooks";
+import { logout, getUser } from "../../redux/actions/auth/index.js";
+import withApollo from "../../util/with-apollo.js";
+import { USER_BY_TOKEN } from "../../graphql/queries/users/index.js";
 
-const Nav = () => {
+const Nav = (props) => {
   const styles = {
     navbar: {
-      justifyContent: 'flex-end',
+      justifyContent: "flex-end",
     },
     navbar__menuButton: {
-      marginRight: 'auto',
+      marginRight: "auto",
     },
     navbar__links: {
-      color: 'white',
-      marginRight: '40px',
+      color: "white",
+      marginRight: "40px",
     },
   };
 
   const [open, setOpen] = useState(false);
-  const user = useSelector(state => state.auth.user);
+  const isAuthed = useSelector((state) => state.auth.isAuthenticated);
+  const [token, setToken] = useState("");
+  // so that the spinner shows while resolving auth
+  const [authResolved, setAuthResolved] = useState(false);
+  const { data, loading, error, refetch, networkStatus } = useQuery(
+    USER_BY_TOKEN,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: {
+        token,
+      },
+      skip: USER_BY_TOKEN,
+    }
+  );
+  if (typeof window !== "undefined") {
+    const findUser = async () => {
+      if (localStorage) {
+        await refetch()
+          .then(({ data }) => {
+            if (data && data.userByToken) {
+              dispatch(getUser(data.userByToken));
+            }
+            setAuthResolved(true);
+          })
+          .catch((err) => {
+            setAuthResolved(true);
+            // localStorage.removeItem("token");
+            console.log(err);
+          });
+      }
+    };
+    findUser();
+  }
   const dispatch = useDispatch();
 
   const handleClickOpen = () => {
@@ -39,8 +75,41 @@ const Nav = () => {
     setOpen(false);
   };
 
+  const authRender = () => {
+    if (isAuthed && authResolved) {
+      return (
+        <Button
+          onClick={() => {
+            dispatch(logout());
+            document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+            setToken("");
+          }}
+          variant="outlined"
+          color="inherit"
+        >
+          Logout
+        </Button>
+      );
+    } else if (!isAuthed && authResolved) {
+      return (
+        <Button variant="outlined" color="inherit" onClick={handleClickOpen}>
+          Login
+        </Button>
+      );
+    } else {
+      return <CircularProgress color="secondary" />;
+    }
+  };
+  React.useEffect(() => {
+    // handles checking if use is authenticated on refresh
+    setToken(localStorage.getItem("token"));
+    // the component mounts twice due to SSR so we only want to run this function on the client side where localStorage exists
+    console.log("loading", loading);
+  });
+
   return (
     <AppBar position="static">
+      {JSON.stringify(loading)}
       <Toolbar style={styles.navbar}>
         <IconButton
           edge="start"
@@ -50,7 +119,7 @@ const Nav = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Link href="#">
+        <Link>
           <Typography style={styles.navbar__links} variant="h6">
             what we do
           </Typography>
@@ -65,21 +134,11 @@ const Nav = () => {
             what we do
           </Typography>
         </Link>
-        {!user ? (
-          <Button variant="outlined" color="inherit" onClick={handleClickOpen}>
-            Login
-          </Button>
-        ) : (
-          <Button onClick={() => {
-            dispatch(logout());
-          }} variant="outlined" color="inherit">
-            Logout
-          </Button>
-        )}
-          <SignIn open={open} handleClose={handleClose} />
+        {authRender()}
+        <SignIn open={open} handleClose={handleClose} />
       </Toolbar>
     </AppBar>
   );
 };
 
-export default Nav;
+export default withApollo({ ssrMode: false })(Nav);

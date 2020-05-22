@@ -14,6 +14,7 @@ const initialState = {
   token: null,
   errors: [],
   loading: false,
+  isAuthenticated: false
 };
 const authReducer = (state = initialState, { type, payload }) => {
   switch (type) {
@@ -26,6 +27,7 @@ const authReducer = (state = initialState, { type, payload }) => {
         token: payload.token,
         loading: false,
         errors: [],
+        isAuthenticated: true,
       };
     case GET_USER:
       return {
@@ -33,6 +35,7 @@ const authReducer = (state = initialState, { type, payload }) => {
         loading: false,
         user: payload,
         errors: [],
+        isAuthenticated: true,
       };
     case LOGOUT_SUCCESS:
     case AUTH_ERROR:
@@ -40,9 +43,11 @@ const authReducer = (state = initialState, { type, payload }) => {
     case LOGOUT_FAIL:
     case REGISTER_FAIL:
       localStorage.removeItem("token");
+      console.log('happened')
       return {
         ...state,
         user: null,
+        isAuthenticated: false,
         loading: false,
         token: null,
         errors: payload,

@@ -48,7 +48,7 @@ const Nav = (props) => {
   );
   if (typeof window !== "undefined") {
     const findUser = async () => {
-      if (localStorage) {
+      if (localStorage && token) {
         await refetch()
           .then(({ data }) => {
             if (data && data.userByToken) {
@@ -58,7 +58,6 @@ const Nav = (props) => {
           })
           .catch((err) => {
             setAuthResolved(true);
-            // localStorage.removeItem("token");
             console.log(err);
           });
       }
@@ -102,9 +101,8 @@ const Nav = (props) => {
   };
   React.useEffect(() => {
     // handles checking if use is authenticated on refresh
-    setToken(localStorage.getItem("token"));
-    // the component mounts twice due to SSR so we only want to run this function on the client side where localStorage exists
-    console.log("loading", loading);
+    // since apollo forcing component to render twice, giving a default value here only allows the query to run on the client-side where the token may be located
+    setToken(localStorage.getItem("token") ? localStorage.getItem("token") : 'not set');
   });
 
   return (

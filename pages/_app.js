@@ -69,7 +69,7 @@ class MyApp extends App {
             displayName="Context Display Name"
           />
 
-          <Component {...this.pageProps} />
+          <Component {...pageProps} />
         </UserContext.Provider>
       </ApolloProvider>
     );

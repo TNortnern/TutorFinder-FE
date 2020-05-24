@@ -18,7 +18,6 @@ import UserContext from "../UserContext";
 
 const Nav = (props) => {
   // get user from global context
-  
   const context = React.useContext(UserContext);
   console.log("context", context);
   let { user } = context;

@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { LOGIN } from "../../graphql/queries/users";
 import withApollo from "../../util/with-apollo";
 import { login, clearErrors } from "../../redux/actions/auth";
-const Login = () => {
+const Login = props => {
+  console.log(props)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();

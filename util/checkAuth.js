@@ -1,43 +1,23 @@
 import React from "react";
-import cookies from "next-cookies";
-import nookies, { parseCookies, setCookie, destroyCookie } from "nookies";
+import Router from "next/router";
+import UserContext from "../components/UserContext";
 
-import { USER_BY_TOKEN } from "../graphql/queries/users";
-import { getUser } from "../redux/actions/auth";
-/**
- * @param {React.Component} Component pass the component you need to check for authentication
- * @returns redirect if not authenticated
- */
-// TODO
-export const checkAuth = (Component = React.Component) => {
-  return class AuthComponent extends React.Component {
-    static async getInitialProps(ctx) {
-      const token = nookies.get(ctx).token;
-      let query = null
-      if (token) {
-        const apolloClient = ctx.apolloClient;
-        try {
-          query = await apolloClient.query({
-            query: USER_BY_TOKEN,
-            variables: {
-              token,
-            },
-          });
-          ctx.store.dispatch(getUser(data.userByToken));
-        } catch {
-        //   nookies.destroy("token");
-        }
-        let pageProps = {};
-        if (Component.getInitialProps) {
-          pageProps = await Component.getInitialProps(ctx);
-        }
-        return { user:  'null', pageProps };
-      }
-
-      return {};
-    }
-    render() {
-      return <Component test={this.props} user={this.props.user} {...this.props} />;
+export const AuthWrapper = (props) => {
+  const { privateRoute } = props;
+  console.log(props);
+  // handles securing private routes
+  const context = React.useContext(UserContext);
+  let { user, resolved } = context;
+  let render = <></>;
+  const isAuthed = () => {
+    if (!user) {
+      Router.push("/test");
+    } else {
+      render = <>{props.children}</>;
     }
   };
+  if (resolved) {
+    if (privateRoute) isAuthed();
+  }
+  return render;
 };

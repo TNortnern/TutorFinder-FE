@@ -13,7 +13,7 @@ import { CATEGORIES_QUERY } from "../graphql/queries/categories";
 import { USERS_QUERY } from "../graphql/queries/users";
 import { register, clearErrors } from "../redux/actions/auth/index";
 
-const test = ({ pageProps: data }) => {
+const test = (props) => {
   const [createUser, result] = useMutation(CREATE_USER);
   const getRoles = useQuery(ROLES_QUERY);
   const getCategories = useQuery(CATEGORIES_QUERY);
@@ -178,7 +178,8 @@ const test = ({ pageProps: data }) => {
           Add new user
         </Button>
       </form>
-      <ul>
+      {JSON.stringify(props)}
+      {/* <ul>
         {data.data.users.map((user) => (
           <>
             <li key={user.id}>
@@ -203,7 +204,7 @@ const test = ({ pageProps: data }) => {
             )}
           </>
         ))}
-      </ul>
+      </ul> */}
     </AppLayout>
   );
 };

@@ -14,6 +14,7 @@ import { getUser } from "../redux/actions/auth";
 class MyApp extends App {
   state = {
     user: null,
+    resolved: false
   };
   static async getInitialProps(req) {
     // check if user is authenticated, if so, update global context
@@ -27,17 +28,26 @@ class MyApp extends App {
     }
     if (token) {
       const apolloClient = ctx.apolloClient;
-      qry = await apolloClient.query({
-        query: USER_BY_TOKEN,
-        variables: {
-          token,
-        },
-      });
-      ctx.store.dispatch(getUser(qry.data.userByToken));
-      return { ssrUser: qry.data.userByToken, pageProps };
+      let user = null;
+      const qry = await apolloClient
+        .query({
+          query: USER_BY_TOKEN,
+          variables: {
+            token,
+          },
+        })
+        .then(({ data }) => {
+          user = data.userByToken;
+        })
+        .catch((err) => {
+          console.log(err);
+          user = null;
+        });
+      if (user) ctx.store.dispatch(getUser(user));
+      return { ssrUser: user, pageProps };
     }
 
-    return { user: null, pageProps };
+    return { pageProps };
   }
 
   componentDidMount() {
@@ -45,7 +55,9 @@ class MyApp extends App {
     if (this.props.ssrUser) {
       this.setState({ user: this.props.ssrUser });
     }
-  }
+    // this will notify wrappers that the app is on client side so client side actions can take place.
+    this.setState({ resolved: true })
+  } 
   logout = () => {
     this.setState({ user: null });
   };
@@ -61,6 +73,7 @@ class MyApp extends App {
             user: this.state.user,
             logout: this.logout,
             signin: this.signin,
+            resolved: this.state.resolved
           }}
         >
           <ContextDevTool
@@ -68,8 +81,8 @@ class MyApp extends App {
             id="uniqContextId"
             displayName="Context Display Name"
           />
-
-          <Component {...pageProps} />
+          {/* this wrapper is appropiate for securing private routes */}
+            <Component props={{ ...pageProps }} />
         </UserContext.Provider>
       </ApolloProvider>
     );

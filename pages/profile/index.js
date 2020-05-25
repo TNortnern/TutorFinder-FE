@@ -1,13 +1,16 @@
 import React from "react";
 import AppLayout from "../../components/layout/AppLayout";
-import { checkAuth } from "../../util/checkAuth";
+import { AuthWrapper } from "../../util/checkAuth";
+import Router from "next/router";
 
 const index = (props) => {
   return (
-    <AppLayout>
+    <AuthWrapper privateRoute>
+      <AppLayout>
         <div>Hello</div>
-    </AppLayout>
+      </AppLayout>
+    </AuthWrapper>
   );
 };
 
-export default checkAuth(index);
+export default index;

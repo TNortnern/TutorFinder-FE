@@ -47,7 +47,7 @@ export const logout = () => {
 }
 
 export const getUser = user => {
-  console.log(user)
+  // console.log(user)
   if (user) {
     return {
       type: GET_USER,
